@@ -1,0 +1,122 @@
+```{r}
+# Load CSV file
+data <- read.csv("C:/Users/adeog/OneDrive/Documents/ObesityDataSet_raw_and_data_sinthetic.csv")
+print(data)
+```
+```{r}
+### Data cleaning and preprocessing 
+# Check for missing values
+missing_values <- colSums(is.na(data))
+print(missing_values)
+
+# Remove rows with missing values
+data <- na.omit(data)
+```
+
+```{r}
+# Check for duplicate rows
+duplicate_rows <- data[duplicated(data), ]
+print(duplicate_rows)
+```
+```{r}
+# Univariate analysis - summary statistics
+summary(data)
+```
+
+```{r}
+
+# Bivariate analysis - correlation matrix
+correlation_matrix <- cor(data[, c("Age", "Height", "Weight", "CH2O", "FAF", "TUE")])
+print(correlation_matrix)
+```
+
+```{r}
+# Multivariate analysis - scatterplot matrix
+
+library(cluster)
+
+# Selecting variables for clustering
+cluster_data <- data[, c("Age", "Height", "Weight")]
+
+# Perform k-means clustering with 3 clusters
+kmeans_result <- kmeans(cluster_data, centers = 3)
+
+# Add cluster assignments to the original data frame
+data$Cluster <- kmeans_result$cluster
+
+# Display the tabular form of the data with cluster assignments
+print(data[, c("Age", "Height", "Weight", "Cluster")])
+```
+```{r}
+
+
+# Perform k-means clustering
+kmeans_result <- kmeans(data[, c("Age", "Height", "Weight")], centers = 3)
+
+# Extract cluster assignments
+clusters <- kmeans_result$cluster
+
+# Add cluster information to the dataset
+data$Cluster <- factor(clusters)
+
+# Plot the clusters using a scatterplot
+library(ggplot2)
+ggplot(data, aes(x = Age, y = Height, color = Cluster, size = Weight)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "K-means Clustering of Age, Height, Weight") +
+  scale_color_manual(values = c("#E41A1C", "#377EB8", "#4DAF4A")) +  # Customize colors
+  theme_minimal()
+
+```
+```{r}
+# Detect outliers using boxplots
+boxplot(data$Age, vertical = TRUE, ylab = "Age")
+boxplot(data$Height,vertical = TRUE, ylab = "Height")
+boxplot(data$Weight,vertical = TRUE, ylab = "Weight")
+boxplot(data$CH2O,vertical = TRUE, ylab = "CH2O")
+boxplot(data$FAF,vertical = TRUE, ylab = "FAF")
+boxplot(data$TUE,vertical = TRUE, ylab = "TUE")
+```
+```{r}
+
+
+# Normalize or standardize features if needed
+data$Height <- scale(data$Height)
+data$Weight <- scale(data$Weight)
+data$CH2O <- scale(data$CH2O)
+data$FAF <- scale(data$FAF)
+data$TUE <- scale(data$TUE)
+
+```
+
+```{r}
+
+# Handle outliers (e.g., winsorizing)
+library(magrittr)
+data$Age <- data$Age %>% winsorize(c(0.05, 0.95))
+data$Height <- data$Height %>% winsorize(c(0.05, 0.95))
+data$Weight <- data$Weight %>% winsorize(c(0.05, 0.95))
+data$CH2O <- data$CH2O %>% winsorize(c(0.05, 0.95))
+data$FAF <- data$FAF %>% winsorize(c(0.05, 0.95))
+data$TUE <- data$TUE %>% winsorize(c(0.05, 0.95))
+
+
+```
+```{r}
+# Load the ggplot2 library
+library(ggplot2)
+# Histogram of Age
+ggplot(data, aes(x = Age)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Age", x = "Age", y = "Frequency") +
+  theme_minimal()
+```
+```{r}
+# Boxplot of Age with y-axis label
+ggplot(data, aes(y = Age)) +
+  geom_boxplot(fill = "lightgreen", color = "black") +
+  labs(title = "Boxplot of Age", y = "Age") +
+  theme_minimal() +
+  theme(axis.title.y = element_text(margin = margin(r = 20)))  # Adjust y-axis label position
+```
+

@@ -1,0 +1,194 @@
+```{r}
+# Install and load the outliers package for Grubbs' test
+install.packages("outliers")
+library(outliers)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+airquality
+```
+
+```{r}
+df <- airquality
+# Assuming df is your dataset
+# Remove rows with NA values
+# Assuming df is your dataset
+# Remove rows with NA values
+df_clean <- df[complete.cases(df), ]
+
+print(df_clean)
+```
+
+```{r}
+# Assuming df is your dataset
+# 1. Boxplot for the "Ozone" variable
+ggplot(df_clean, aes(y = Ozone)) +
+  geom_boxplot() +
+  ggtitle("Boxplot of Ozone")
+```
+
+
+
+```{r}
+# 2. Scatterplot of "Ozone" against "Wind"
+ggplot(df_clean, aes(x = Wind, y = Ozone)) +
+  geom_point() +
+  ggtitle("Scatterplot of Ozone against Wind")
+```
+
+```{r}
+# 3. Histogram for the "Ozone" variable
+ggplot(df_clean, aes(x = Ozone)) +
+  geom_histogram(binwidth = 10, fill = "lightblue", color = "black") +
+  ggtitle("Histogram of Ozone")
+```
+
+```{r}
+# 4. Density plot for the "Ozone" variable
+ggplot(df_clean, aes(x = Ozone)) +
+  geom_density(fill = "lightblue", color = "black") +
+  ggtitle("Density Plot of Ozone")
+```
+```{r}
+
+# Calculate Z-scores for the "Ozone" variable
+df_clean$Z_score <- scale(df_clean$Ozone)
+
+# Identify outliers based on Z-score threshold
+outliers_zscore <- df_clean[abs(df_clean$Z_score) > 2, ]
+outliers_zscore
+```
+
+
+```{r}
+#Detect Outliers Using IQR Method (Multiplier: 1.5):
+
+# Calculate the first and third quartiles
+q1 <- quantile(df_clean$Ozone, 0.25, na.rm = TRUE)
+q3 <- quantile(df_clean$Ozone, 0.75, na.rm = TRUE)
+
+# Calculate the interquartile range (IQR)
+iqr <- q3 - q1
+# Identify outliers based on IQR method
+outliers_iqr <- df_clean[df_clean$Ozone < q1 - 1.5 * iqr | df_clean$Ozone > q3 + 1.5 * iqr, ]
+outliers_iqr
+```
+
+
+```{r}
+#Detect Outliers Using Tukey's Fences:
+# Calculate Tukey's fences
+lower_fence <- quantile(df_clean$Ozone, 0.25, na.rm = TRUE) - 1.5 * IQR(df_clean$Ozone, na.rm = TRUE)
+upper_fence <- quantile(df_clean$Ozone, 0.75, na.rm = TRUE) + 1.5 * IQR(df_clean$Ozone, na.rm = TRUE)
+
+# Identify outliers based on Tukey's fences
+outliers_tukey <- df_clean[df_clean$Ozone < lower_fence | df_clean$Ozone > upper_fence, ]
+outliers_tukey 
+```
+
+
+```{r}
+#Detect Outliers Using Grubbs' Test:
+# Perform Grubbs' test for outliers
+outliers_grubbs <- grubbs.test(df_clean$Ozone)$outliers
+
+outliers_grubbs
+```
+## Task 1.2 
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+```
+
+```{r}
+# Set seed for reproducibility
+set.seed(123)
+
+# Step 1: Create a synthetic dataset with 100 normally distributed data points
+normal_data <- rnorm(100, mean = 50, sd = 10)
+normal_data
+```
+
+
+```{r}
+# Step 2: Introduce 5 outliers to the dataset
+outliers <- c(20, 120, 25, 130, 40)
+synthetic_data <- c(normal_data, outliers)
+
+# Convert the synthetic data into a data frame
+df <- data.frame(value = synthetic_data)
+df
+```
+
+```{r}
+# Calculate Z-scores
+z_scores <- scale(df)
+z_scores
+```
+
+
+```{r}
+
+winsorised_data <- df %>%
+  mutate(winsorised_value = ifelse(value < quantile(value, 0.05), quantile(value, 0.05), 
+                                   ifelse(value > quantile(value, 0.95), quantile(value, 0.95), value)))
+winsorised_data
+```
+
+```{r}
+
+# Step 4: Apply trimming by removing the top and bottom 5% of the data
+trimmed_data <- df %>%
+  filter(value > quantile(value, 0.05) & value < quantile(value, 0.95))
+trimmed_data
+```
+
+```{r}
+
+# Step 5: Apply mean imputation to the outliers
+mean_imputed_data <- df %>%
+  mutate(imputed_value = ifelse(value < quantile(value, 0.05) | value > quantile(value, 0.95), mean(value, na.rm = TRUE), value))
+mean_imputed_data
+```
+
+```{r}
+# Step 6: Apply a logarithmic transformation to the dataset
+log_transformed_data <- df %>%
+  mutate(log_value = log(value))
+log_transformed_data
+```
+
+
+
+
+
+
+
+
+
+
+

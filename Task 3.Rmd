@@ -1,0 +1,105 @@
+
+```{r}
+# Load CSV file
+data <- read.csv("C:/Users/adeog/OneDrive/Documents/Sleep_health_and_lifestyle_dataset.csv")
+print(data)
+```
+```{r}
+
+### Data cleaning and preprocessing 
+# Check for missing values
+missing_values <- colSums(is.na(data))
+print(missing_values)
+```
+
+```{r}
+
+# Remove rows with missing values
+data <- na.omit(data)
+data
+
+```
+```{r}
+# Load necessary libraries
+library(ggplot2)
+
+# Create a bar plot for BMI category
+ggplot(data = data, aes(x = BMI.Category)) +
+  geom_bar(fill = "steelblue") +
+  labs(title = "BMI Category Distribution", x = "BMI.Category", y = "Count")
+
+```
+```{r}
+
+# Create the stacked bar plot with vertical x-axis
+ggplot(data = data, aes(x = Occupation, fill = Sleep.Disorder)) +
+  geom_bar() +
+  labs(title = "Sleep Disorders by Occupation", x = "Occupation", y = "Count") +
+  scale_fill_manual(values = c("Sleep Apnea" = "red", "Insomnia" = "blue", "None" = "green")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+```{r}
+
+# Create a mosaic plot for gender and sleep disorders
+mosaicplot(table(data$Gender, data$Sleep.Disorder), 
+           main = "Gender vs Sleep Disorders",
+           col = c("red", "blue", "green")) # Add labels with numbers to the cells
+# Load necessary libraries
+library(ggplot2)
+```
+```{r}
+
+#Task 3.1: Customising visualisations
+"Univariate Analysis:
+Modify the histogram with new colors, fill, and themes:"
+
+
+# Create a histogram with custom colors, fill, and theme
+ggplot(data = data, aes(x = Sleep.Duration)) +
+  geom_histogram(fill = "lightblue", color = "black", bins = 20) +
+  labs(title = "Distribution of Sleep Duration", x = "Sleep Duration") +
+  theme_minimal()
+
+```
+
+
+```{r}
+
+"Modify the box plot with new colors, fill, and themes: Biavariate analysis"
+
+data$BMI_Category <- factor(data$BMI.Category, levels = c("Underweight", "Normal", "Overweight", "Obese"))
+
+ggplot(data = data, aes(x = BMI.Category, y = Heart.Rate, fill = BMI.Category, group = BMI.Category)) +
+  geom_boxplot(color = "black") +
+  scale_fill_manual(values = c("#FFA07A", "#ADD8E6", "#98FB98", "#FF6347")) +
+  labs(title = "Distribution of Heart Rate vs BMI Category") 
+  theme_classic()
+```
+
+```{r}
+
+"Multivariate Analysis:
+  Customize the scatter plot with different point shapes, sizes, and colors:"
+
+ggplot(data = data, aes(x = Stress.Level, y = Sleep.Duration, shape = Gender, size = Physical.Activity.Level, color = Sleep.Disorder, group = Gender)) +
+  geom_point() +
+  scale_shape_manual(values = c(16, 17)) +
+  scale_size(range = c(2, 10)) +
+  scale_color_manual(values = c("green", "red", "blue")) +
+    labs(title = "Distribution of Sleep Duration vs Stress.Level") 
+  theme_bw()
+```
+
+
+
+
+
+
+  
+
+
+
+
+
